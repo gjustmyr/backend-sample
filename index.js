@@ -7,6 +7,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get("/", (req, res) => {
+	res.send("🚀 Email Service is running!");
+});
+
 app.post("/send-email", async (req, res) => {
 	try {
 		const { name, email, message } = req.body;
@@ -45,13 +49,11 @@ app.post("/send-email", async (req, res) => {
 			.json({ success: true, message: "✅ Email sent successfully!" });
 	} catch (error) {
 		console.error("Email sending error:", error);
-		res
-			.status(500)
-			.json({
-				success: false,
-				message: "❌ Failed to send email.",
-				error: error.message,
-			});
+		res.status(500).json({
+			success: false,
+			message: "❌ Failed to send email.",
+			error: error.message,
+		});
 	}
 });
 
