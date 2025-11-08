@@ -7,42 +7,34 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-require("dotenv").config();
-
-// ✅ Email route
 app.post("/send-email", async (req, res) => {
 	try {
 		const { name, email, message } = req.body;
+		console.log("Received request:", req.body);
 
-		// Create transporter using SMTP config
 		const transporter = nodemailer.createTransport({
 			host: process.env.SMTP_HOST,
 			port: Number(process.env.SMTP_PORT),
-			secure: false, // use TLS (true for 465, false for 587)
+			secure: false,
 			auth: {
 				user: process.env.SMTP_USER,
 				pass: process.env.SMTP_PASS,
 			},
-			logger: true,
-			debug: true,
+			logger: true, // logs SMTP conversation
+			debug: true, // prints debug info
 		});
 
 		const mailOptions = {
 			from: `"Spartrack System" <${process.env.SMTP_FROM}>`,
-			to: process.env.SMTP_USER, // receiver (you)
-			replyTo: email, // user’s email
+			to: process.env.SMTP_USER,
+			replyTo: email,
 			subject: `📩 Message from ${name}`,
 			text: message,
-			html: `
-				<h3>New message from ${name}</h3>
-				<p><strong>Email:</strong> ${email}</p>
-				<p><strong>Message:</strong></p>
-				<p>${message}</p>
-			`,
 		};
 
-		await transporter.sendMail(mailOptions);
-		console.log("Email sent successfully", transporter);
+		const info = await transporter.sendMail(mailOptions);
+		console.log("Email sent info:", info);
+
 		res
 			.status(200)
 			.json({ success: true, message: "✅ Email sent successfully!" });
