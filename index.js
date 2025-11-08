@@ -41,7 +41,7 @@ app.post("/send-email", async (req, res) => {
 		};
 
 		await transporter.sendMail(mailOptions);
-
+		console.log("Email sent successfully", transporter);
 		res
 			.status(200)
 			.json({ success: true, message: "✅ Email sent successfully!" });
