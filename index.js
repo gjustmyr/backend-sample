@@ -12,26 +12,31 @@ app.post("/send-email", async (req, res) => {
 		const { name, email, message } = req.body;
 		console.log("Received request:", req.body);
 
+		// Create transporter
 		const transporter = nodemailer.createTransport({
 			host: process.env.SMTP_HOST,
 			port: Number(process.env.SMTP_PORT),
-			secure: false,
+			secure: process.env.SMTP_PORT == "465", // true for 465, false for other ports
 			auth: {
 				user: process.env.SMTP_USER,
 				pass: process.env.SMTP_PASS,
 			},
-			logger: true, // logs SMTP conversation
-			debug: true, // prints debug info
 		});
 
+		// Verify transporter connection
+		await transporter.verify();
+		console.log("SMTP Connection verified!");
+
+		// Mail options
 		const mailOptions = {
 			from: `"Spartrack System" <${process.env.SMTP_FROM}>`,
-			to: process.env.SMTP_USER,
+			to: process.env.SMTP_USER, // your receiving email
 			replyTo: email,
 			subject: `📩 Message from ${name}`,
 			text: message,
 		};
 
+		// Send email
 		const info = await transporter.sendMail(mailOptions);
 		console.log("Email sent info:", info);
 
@@ -42,9 +47,13 @@ app.post("/send-email", async (req, res) => {
 		console.error("Email sending error:", error);
 		res
 			.status(500)
-			.json({ success: false, message: "❌ Failed to send email." });
+			.json({
+				success: false,
+				message: "❌ Failed to send email.",
+				error: error.message,
+			});
 	}
 });
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
