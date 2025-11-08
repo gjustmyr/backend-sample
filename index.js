@@ -7,11 +7,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+require("dotenv").config();
+
 // ✅ Email route
 app.post("/send-email", async (req, res) => {
 	try {
 		const { name, email, message } = req.body;
 
+		con;
 		// Create transporter using SMTP config
 		const transporter = nodemailer.createTransport({
 			host: process.env.SMTP_HOST,
